@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { isValidTitle } from '../utils/validation';
 import {
   View,
   Text,
@@ -27,25 +28,17 @@ export function TaskForm({
   const [titleError, setTitleError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  function validateTitle(text: string): string | null {
-    const trimmed = text.trim();
-    if (!trimmed) return 'O título é obrigatório.';
-    if (trimmed.length < 3) return 'O título deve ter pelo menos 3 caracteres.';
-    if (trimmed.length > 100) return 'O título deve ter no máximo 100 caracteres.';
-    return null;
-  }
-
   function handleTitleChange(text: string) {
     setTitle(text);
     if (titleError) {
-      if (!validateTitle(text)) setTitleError(null);
+      if (isValidTitle(text).isValid) setTitleError(null);
     }
   }
 
   async function handleSubmit() {
-    const error = validateTitle(title);
-    if (error) {
-      setTitleError(error);
+    const result = isValidTitle(title);
+    if (!result.isValid) {
+      setTitleError(result.error);
       return;
     }
     setSubmitting(true);
